@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Traffic Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<!-- 🔥 NAVBAR -->
+<div class="navbar">
+    <h2>🚦 Traffic AI System</h2>
+</div>
+
+<div class="container">
+
+    <!-- 🔥 DASHBOARD TITLE -->
+    <h1>Dashboard</h1>
+
+    <!-- 🔥 TOP CARDS -->
+    <div class="cards">
+        <div class="card">🚗 Vehicles Detected</div>
+        <div class="card">🚨 Violations</div>
+        <div class="card">📍 Locations</div>
+    </div>
+
+    <!-- 🔥 UPLOAD SECTION -->
+    <div class="upload-box">
+        <h3>📤 Upload Video for Detection</h3>
+        <input type="file" accept="video/*">
+    </div>
+
+    <!-- 🔥 CAMERA + DETECTION -->
+    <div class="camera-section">
+
+        <!-- Camera -->
+        <div class="camera-box">
+            <h3>📷 Live Camera Feed</h3>
+            <video id="camera" autoplay></video>
+        </div>
+
+        <!-- Detection Log -->
+        <div class="detection-box">
+            <h3>🚨 Detection Log</h3>
+            <ul>
+                <li>Helmet violation detected</li>
+                <li>Signal jump detected</li>
+                <li>Over-speed detected</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- 🔥 YOLO OUTPUT -->
+    <div class="yolo-output">
+        <h3>🧠 YOLO Detection Output</h3>
+        <img src="output/result.jpg" id="yolo-image" width="400">
+    </div>
+
+</div>
+
+<!-- 🔥 SCRIPT -->
+<script>
+
+    // 🎥 Webcam
+    const video = document.getElementById("camera");
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+        video.srcObject = stream;
+    });
+
+    // 🔁 Auto refresh YOLO image
+    setInterval(() => {
+        const img = document.getElementById("yolo-image");
+        img.src = "output/result.jpg?t=" + new Date().getTime();
+    }, 1000);
+
+</script>
+
+</body>
+</html>
