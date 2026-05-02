@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <head>
     <title>AI Traffic Dashboard</title>
@@ -6,51 +7,130 @@
 </head>
 
 <body>
-<!-- 🔥 NAVBAR -->
-<div class="navbar">
-    <h2>🚦 Traffic AI System</h2>
+<div class="background-glow">
+    <span></span>
+    <span></span>
+    <span></span>
 </div>
+
+<!-- 🔥 NAVBAR -->
+
+<div class="navbar">
+    <!-- ☰ Hamburger Button -->
+    <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+
+    <h2>🚦 AI-Based Smart Traffic Violation Detection System</h2>
+
+</div>
+
+<!-- 🧱 SIDEBAR -->
+
+<div class="sidebar" id="sidebar">
+    <h2>🚦 AI Panel</h2>
+    <ul>
+        <li onclick="showPage('homePage')">🏠 Home</li>
+        <li onclick="showPage('dashboardPage')">📊 Dashboard</li>
+        <li onclick="showPage('uploadPage')">📁 Uploads</li>
+        <li onclick="showPage('settingsPage')">⚙️ Settings</li>
+    </ul>
+</div>
+
+<!-- 📦 MAIN -->
 
 <div class="container">
 
-    <!-- 🔥 DASHBOARD TITLE -->
-    <h1>Dashboard</h1>
+<!-- 🏠 HOME PAGE -->
+<div id="homePage" class="page active">
 
-    <!-- 🔥 TOP CARDS -->
-    <div class="cards">
-        <div class="card">🚗 Vehicles Detected</div>
-        <div class="card">🚨 Violations</div>
-        <div class="card">📍 Locations</div>
+    <div class="home-container">
+        
+        <h1 class="hero-title">
+            Smart Traffic Monitoring <br>
+            <span>Powered by AI 🚦</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            Detect violations, monitor vehicles, and manage traffic in real-time using AI.
+        </p>
+
+        <div class="hero-buttons">
+            <button onclick="showPage('dashboardPage')" class="primary-btn">
+                🚀 Go to Dashboard
+            </button>
+
+            <button onclick="showPage('uploadPage')" class="secondary-btn">
+                📤 Upload Video
+            </button>
+        </div>
+
+    </div>
+    <!-- 🚀 FEATURES SECTION -->
+<div class="features">
+
+    <h2 class="section-title">✨ Why Use Our AI System?</h2>
+
+    <div class="feature-cards">
+
+        <div class="feature-card">
+            <h3>🚗 Real-Time Detection</h3>
+            <p>Instantly detect vehicles, violations, and traffic patterns using AI.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>⚡ Smart Processing</h3>
+            <p>Advanced AI models process video feeds with high accuracy and speed.</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>📊 Traffic Insights</h3>
+            <p>Get meaningful analytics to improve traffic management decisions.</p>
+        </div>
+
     </div>
 
-    <!-- 🔥 UPLOAD SECTION -->
+</div>
+
+</div>
+
+<!-- 📊 DASHBOARD PAGE -->
+<div id="dashboardPage" class="page">
+
+    <h1>🚦Real-Time Traffic Insights</h1>
+
+    <div class="cards">
+        <div class="card">
+            🚗 <span id="vehicleCount">0</span><br>Vehicles Detected
+        </div>
+        <div class="card">
+            🚨 <span id="violationCount">0</span><br>Violations
+        </div>
+        <div class="card">
+            📍 <span id="locationCount">0</span><br>Locations
+        </div>
+    </div>
+
     <div class="upload-box">
         <h3>📤 Upload Video for Detection</h3>
-        <input type="file" accept="video/*">
-    </div>
+        <input type="file" id="videoUpload" accept="video/*">
+        <video id="uploadedVideo" controls style="margin-top:15px; width: 400px; display:none;"></video>
+    </div>  
 
-    <!-- 🔥 CAMERA + DETECTION -->
     <div class="camera-section">
 
-        <!-- Camera -->
         <div class="camera-box">
             <h3>📷 Live Camera Feed</h3>
             <video id="camera" autoplay></video>
         </div>
 
-        <!-- Detection Log -->
         <div class="detection-box">
             <h3>🚨 Detection Log</h3>
-            <ul>
-                <li>Helmet violation detected</li>
-                <li>Signal jump detected</li>
-                <li>Over-speed detected</li>
+            <ul id="detectionList">
+                <li>Waiting for input...</li>
             </ul>
         </div>
 
     </div>
 
-    <!-- 🔥 YOLO OUTPUT -->
     <div class="yolo-output">
         <h3>🧠 YOLO Detection Output</h3>
         <img src="output/result.jpg" id="yolo-image" width="400">
@@ -58,23 +138,127 @@
 
 </div>
 
+<!-- 📂 UPLOAD PAGE -->
+<div id="uploadPage" class="page">
+    <h1>Upload Center 📤</h1>
+    <p>Upload videos and analyze traffic violations.</p>
+</div>
+
+<!-- ⚙️ SETTINGS PAGE -->
+<div id="settingsPage" class="page">
+    <h1>Settings ⚙️</h1>
+    <p>Configure your system here.</p>
+</div>
+
+</div>
+
 <!-- 🔥 SCRIPT -->
+
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // 🔁 PAGE SWITCH
+    window.showPage = function(pageId) {
+        const pages = document.querySelectorAll(".page");
+
+        pages.forEach(page => {
+            page.classList.remove("active");
+        });
+
+        document.getElementById(pageId).classList.add("active");
+    };
+
+    const video = document.getElementById("camera");
+    const detectionList = document.getElementById("detectionList");
+    const uploadInput = document.getElementById("videoUpload");
+    const uploadedVideo = document.getElementById("uploadedVideo");
 
     // 🎥 Webcam
-    const video = document.getElementById("camera");
+    if (video) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+        });
+    }
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-        video.srcObject = stream;
-    });
-
-    // 🔁 Auto refresh YOLO image
+    // 🔁 YOLO refresh
     setInterval(() => {
         const img = document.getElementById("yolo-image");
-        img.src = "output/result.jpg?t=" + new Date().getTime();
+        if (img) {
+            img.src = "output/result.jpg?t=" + new Date().getTime();
+        }
     }, 1000);
 
+    // 🔢 Counter
+  function animateCount(id, target) {
+    let count = 0;
+    const element = document.getElementById(id);
+
+    const interval = setInterval(() => {
+        count += Math.ceil(target / 50); // faster + smooth
+        if (count >= target) count = target;
+
+        element.innerText = count;
+
+        if (count === target) clearInterval(interval);
+    }, 30);
+}
+    // 🔥 Fake logs
+    const logs = [
+        "🚨 Helmet violation detected",
+        "🚗 Overspeed vehicle detected",
+        "🚦 Signal jump detected",
+        "📸 License plate captured",
+        "⚠️ Triple riding detected"
+    ];
+
+    if (detectionList) {
+        setInterval(() => {
+            const li = document.createElement("li");
+            li.innerText = logs[Math.floor(Math.random() * logs.length)];
+            detectionList.prepend(li);
+
+            if (detectionList.children.length > 5) {
+                detectionList.removeChild(detectionList.lastChild);
+            }
+        }, 2000);
+    }
+
+    // 📤 Upload simulation
+    if (uploadInput) {
+        uploadInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (file) {
+                const url = URL.createObjectURL(file);
+                uploadedVideo.src = url;
+                uploadedVideo.style.display = "block";
+
+                if (detectionList) {
+                    detectionList.innerHTML = "<li>⏳ Processing video...</li>";
+
+                    setTimeout(() => {
+                        detectionList.innerHTML = `
+                            <li>🚨 Helmet violation detected</li>
+                            <li>🚦 Signal jump detected</li>
+                            <li>⚡ Over-speed detected</li>
+                        `;
+                    }, 3000);
+                }
+            }
+        });
+    }
+
+})
+function toggleSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const container = document.querySelector(".container");
+    const navbar = document.querySelector(".navbar");
+
+    sidebar.classList.toggle("closed");
+    container.classList.toggle("full");
+    navbar.classList.toggle("full");
+}
 </script>
 
 </body>
