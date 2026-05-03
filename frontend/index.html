@@ -17,7 +17,7 @@
 
 <div class="navbar">
     <!-- ☰ Hamburger Button -->
-    <span class="menu-btn" onclick="toggleSidebar()">☰</span>
+    <span class="menu-btn" onclick="toggleSidebar()" id="menuBtn">☰</span>
 
     <h2>🚦 AI-Based Smart Traffic Violation Detection System</h2>
 
@@ -109,11 +109,18 @@
         </div>
     </div>
 
-    <div class="upload-box">
-        <h3>📤 Upload Video for Detection</h3>
-        <input type="file" id="videoUpload" accept="video/*">
-        <video id="uploadedVideo" controls style="margin-top:15px; width: 400px; display:none;"></video>
-    </div>  
+   <div class="upload-box">
+    <h3>📤 Upload Video for Detection</h3>
+
+    <label for="videoUpload" class="upload-area">
+        <p>Drag & Drop your video here</p>
+        <span>or click to browse</span>
+    </label>
+
+    <input type="file" id="videoUpload" accept="video/*" hidden>
+
+    <video id="uploadedVideo" controls></video>
+    </div>
 
     <div class="camera-section">
 
@@ -125,7 +132,7 @@
         <div class="detection-box">
             <h3>🚨 Detection Log</h3>
             <ul id="detectionList">
-                <li>Waiting for input...</li>
+                <li id="initialLog">Waiting for input...</li>
             </ul>
         </div>
 
@@ -140,20 +147,39 @@
 
 <!-- 📂 UPLOAD PAGE -->
 <div id="uploadPage" class="page">
-    <h1>Upload Center 📤</h1>
-    <p>Upload videos and analyze traffic violations.</p>
+    <p style="text-align:center; margin-top:50px; opacity:0.6;">
+    Upload features will be expanded here later 🚀
+    </p>
 </div>
-
 <!-- ⚙️ SETTINGS PAGE -->
 <div id="settingsPage" class="page">
     <h1>Settings ⚙️</h1>
-    <p>Configure your system here.</p>
-</div>
+    <div class="settings-box">
+    <h2>⚙️ System Settings</h2>
 
+    <div class="setting-item">
+        <label>🌙 Dark Mode</label>
+        <input type="checkbox" id="darkMode" checked>
+    </div>
+
+    <div class="setting-item">
+        <label>🔔 Notifications</label>
+        <input type="checkbox" id="notifications" checked>
+    </div>
+
+    <div class="setting-item">
+        <label>📷 Camera Feed</label>
+        <input type="checkbox" id="cameraToggle" checked>
+    </div>
+
+    <div class="setting-item">
+        <label>🧠 AI Sensitivity</label>
+        <input type="range" min="1" max="10" value="5" id="aiLevel">
+     </div>
+    </div>
 </div>
 
 <!-- 🔥 SCRIPT -->
-
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -254,12 +280,153 @@ function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
     const container = document.querySelector(".container");
     const navbar = document.querySelector(".navbar");
+    const menuBtn = document.getElementById("menuBtn");
 
     sidebar.classList.toggle("closed");
     container.classList.toggle("full");
     navbar.classList.toggle("full");
-}
-</script>
 
+    const isOpen = !sidebar.classList.contains("closed");
+
+    document.body.classList.toggle("sidebar-open", isOpen);
+
+    // 🔥 CHANGE ICON
+    menuBtn.textContent = isOpen ? "✖" : "☰";
+}
+function setActive(element) {
+    const items = document.querySelectorAll(".sidebar ul li");
+
+    items.forEach(item => item.classList.remove("active"));
+
+    element.classList.add("active");
+}
+document.getElementById("videoUpload").addEventListener("change", function(event) {
+    const file = event.target.files[0];
+    const video = document.getElementById("uploadedVideo");
+
+    if (file) {
+        video.src = URL.createObjectURL(file);
+        video.style.display = "block";
+    }
+});
+function addLog(message, type = "normal") {
+    const logList = document.getElementById("detectionList");
+
+    const li = document.createElement("li");
+
+    li.className = "log-item " + type;  // 🔥 IMPORTANT (force class)
+
+    li.innerHTML = `
+        <span class="log-dot"></span>
+        ${message}
+    `;
+
+    logList.appendChild(li);
+    logList.scrollTop = logList.scrollHeight;
+}
+    addLog("🟢 Test Normal", "normal");
+    addLog("🟡 Test Warning", "warning");
+    addLog("🔴 Test Violation", "violation");
+setTimeout(() => {
+    addLog("🚗 Vehicle detected", "normal");
+}, 2000);
+
+setTimeout(() => {
+    addLog("📸 License plate captured", "normal");
+}, 3500);
+
+setTimeout(() => {
+    addLog("⚠️ Triple riding detected", "warning");
+}, 5000);
+
+setTimeout(() => {
+    addLog("🚦 Signal jump detected", "violation");
+}, 6500);
+
+setTimeout(() => {
+    addLog("🛑 Helmet violation detected", "violation");
+}, 8000);
+</script>
+<script>
+// 🌙 DARK MODE
+const darkModeToggle = document.getElementById("darkMode");
+
+darkModeToggle.addEventListener("change", () => {
+    document.body.classList.toggle("light-mode");
+});
+
+
+// 🔔 NOTIFICATIONS
+const notificationsToggle = document.getElementById("notifications");
+
+notificationsToggle.addEventListener("change", () => {
+    if (notificationsToggle.checked) {
+        alert("Notifications Enabled 🔔");
+    } else {
+        alert("Notifications Disabled ❌");
+    }
+});
+
+
+// 📷 CAMERA TOGGLE
+const cameraToggle = document.getElementById("cameraToggle");
+const cameraFeed = document.getElementById("camera");
+
+cameraToggle.addEventListener("change", () => {
+    if (cameraToggle.checked) {
+        cameraFeed.style.display = "block";
+    } else {
+        cameraFeed.style.display = "none";
+    }
+});
+
+
+// 🧠 AI SENSITIVITY SLIDER
+const aiLevel = document.getElementById("aiLevel");
+
+aiLevel.addEventListener("input", () => {
+    console.log("AI Sensitivity:", aiLevel.value);
+});
+</script>
+<script>
+const videoUpload = document.getElementById("videoUpload");
+const videoPlayer = document.getElementById("uploadedVideo");
+
+videoUpload.addEventListener("change", async function () {
+    const file = this.files[0];
+
+    if (!file) return;
+
+    // show preview
+    const url = URL.createObjectURL(file);
+    videoPlayer.src = url;
+    videoPlayer.style.display = "block";
+
+    // send to backend
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        console.log("Backend response:", data);
+
+        // update YOLO output image
+        document.getElementById("yolo-image").src = data.output;
+
+        // add log
+        addLog("📤 Video processed", "normal");
+
+    } catch (error) {
+        console.error(error);
+        addLog("❌ Upload failed", "violation");
+    }
+});
+</script>
 </body>
 </html>
