@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="./script.js"></script>
+</head>
+
+<body>
+
+<!-- 🔥 LEFT STRIP (intentional design now) -->
+<div class="user-left-strip">
+
+    <h2>👤 User Portal</h2>
+
+    <div class="user-menu">
+
+        <button onclick="showSection('home-section')">
+            🏠 Home
+        </button>
+
+        <button onclick="showSection('payment-section')">
+            💳 Payments
+        </button>
+
+        <button onclick="openInvoice()">
+            📥 Downloads
+        </button>
+
+        <button onclick="showSection('settings-section')">
+            ⚙ Settings
+        </button>
+
+        <button onclick="logout()">
+            🚪 Logout
+        </button>
+
+    </div>
+
+</div>
+
+<div class="user-main">
+    <!-- NOTIFICATION BELL -->
+<div class="notification-wrapper">
+
+    <div class="notification-bell"
+    onclick="toggleNotifications()">
+
+        🔔
+
+        <span id="notificationCount">
+            2
+        </span>
+
+    </div>
+
+    <!-- DROPDOWN -->
+    <div id="notificationPanel"
+    class="notification-panel">
+
+        <div class="notification-item">
+            🚦 New Signal Jump challan added
+        </div>
+
+        <div class="notification-item">
+            ✅ Payment successful
+        </div>
+
+    </div>
+
+</div>
+    <!-- ================= HOME SECTION ================= -->
+    <div id="home-section" class="user-section">
+
+        <!-- STATS -->
+        <div class="user-stats">
+
+            <div class="stat-card">
+                <h3>📄 Total</h3>
+                <p>5</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>✅ Paid</h3>
+                <p id="paidCount">2</p>
+            </div>
+
+            <div class="stat-card">
+                <h3>⏳ Pending</h3>
+                <p id="pendingCount">3</p>
+            </div>
+
+        </div>
+
+        <!-- TITLE -->
+        <h1>Your Challans</h1>
+
+        <!-- FILTER BUTTONS -->
+        <div class="filters">
+            <button onclick="filterChallans('all')">All</button>
+            <button onclick="filterChallans('paid')">Paid</button>
+            <button onclick="filterChallans('unpaid')">Unpaid</button>
+        </div>
+
+        <!-- CHALLAN CARDS -->
+        <div class="challan-grid">
+
+            <div class="challan-card unpaid-card">
+                <h3>🚦 Signal Jump</h3>
+                <p>Fine: ₹500</p>
+                <p>Status: <span class="status unpaid">Unpaid</span></p>
+                <button class="pay-btn"
+                onclick="showSection('payment-section')">
+                    Pay Now
+                </button>
+            </div>
+
+            <div class="challan-card paid-card">
+                <h3>⚠ No Helmet</h3>
+                <p>Fine: ₹300</p>
+                <p>Status: <span class="status paid">Paid</span></p>
+                <button class="invoice-btn"
+                onclick="showSection('download-section')">
+                    View Invoice
+                </button>
+            </div>
+
+        </div>
+
+        <!-- USER PROFILE -->
+        <div class="user-profile-box">
+            <h3>👤 User Profile</h3>
+            <p>ID: U12345</p>
+            <p>Phone: 98XXXXXX21</p>
+
+            <button class="logout-btn">
+                🚪 Logout
+            </button>
+        </div>
+
+    </div>
+    <!-- ================= END HOME ================= -->
+
+
+    <!-- ================= PAYMENT SECTION ================= -->
+    <div id="payment-section" class="user-section" style="display:none;">
+
+        <h1>💳 Payment Gateway</h1>
+
+        <div class="payment-container">
+
+            <!-- LEFT SIDE -->
+            <div class="payment-methods">
+
+                <button class="method-btn active">
+                    💳 Card Payment
+                </button>
+
+                <button class="method-btn">
+                    📱 UPI
+                </button>
+
+                <button class="method-btn">
+                    🏦 Net Banking
+                </button>
+
+                <button class="method-btn">
+                    👛 Wallet
+                </button>
+
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="payment-box">
+
+                <h2>Pay Challan</h2>
+
+                <p><strong>Violation:</strong> Signal Jump</p>
+                <p><strong>Amount:</strong> ₹500</p>
+
+                <input type="text" placeholder="Card Number">
+
+                <div class="payment-row">
+                    <input type="text" placeholder="MM/YY">
+                    <input type="password" placeholder="CVV">
+                </div>
+
+                <input type="text" placeholder="Card Holder Name">
+                <button class="pay-btn big-pay-btn"
+                onclick="processPayment()"
+                id="paymentBtn">
+
+                    <span id="paymentText">
+                        Pay ₹500
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- ================= END PAYMENT ================= -->
+
+
+    <!-- ================= DOWNLOAD SECTION ================= -->
+    <div id="download-section" class="user-section" style="display:none;">
+
+        <h1>📥 Download Invoices</h1>
+
+        <div class="download-card">
+
+            <h3>Helmet Violation Invoice</h3>
+
+            <p>Status: Paid ✅</p>
+
+            <button class="invoice-btn">
+                Download PDF
+            </button>
+
+        </div>
+
+    </div>
+    <!-- ================= END DOWNLOAD ================= -->
+
+
+    <!-- ================= SETTINGS SECTION ================= -->
+    <div id="settings-section" class="user-section" style="display:none;">
+
+        <h1>⚙ User Settings</h1>
+
+        <div class="settings-box">
+
+            <label>
+                <input type="checkbox" checked>
+                Dark Mode
+            </label>
+
+            <label>
+                <input type="checkbox" checked>
+                Notifications
+            </label>
+
+            <label>
+                <input type="checkbox">
+                Auto Download Invoices
+            </label>
+
+        </div>
+
+    </div>
+    <!-- ================= END SETTINGS ================= -->
+    </div>
+    <!-- PAYMENT SUCCESS POPUP -->
+    <div id="success-toast">
+
+        ✅ Payment Successful!
+
+    </div>
+    <!-- INVOICE MODAL -->
+    <div id="invoiceModal" class="invoice-modal">
+
+        <div class="invoice-content">
+
+            <span class="close-btn"
+            onclick="closeInvoice()">
+                ✖
+            </span>
+
+            <h2>🧾 Traffic Challan Invoice</h2>
+
+            <hr>
+
+            <p><strong>User ID:</strong> U12345</p>
+            <p><strong>Violation:</strong> No Helmet</p>
+            <p><strong>Fine Amount:</strong> ₹300</p>
+            <p><strong>Status:</strong> Paid ✅</p>
+            <p><strong>Date:</strong> 07 May 2026</p>
+
+            <button class="invoice-btn">
+                Download PDF
+            </button>
+
+        </div>
+
+    </div>
+</body>
+</html>

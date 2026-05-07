@@ -720,3 +720,601 @@ button:hover {
     border-color: #ec4899;
     background: rgba(236,72,153,0.1);
 }
+.login-container {
+    width: 320px;
+    margin: 100px auto;
+    padding: 30px;
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.login-container input,
+.login-container select {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background: #ec4899;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+.role-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* 🔥 THIS adds space between buttons */
+    margin-top: 15px;
+}
+.role-buttons button {
+    padding: 12px;
+    border-radius: 12px;
+}
+.user-stats {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 30px 0;
+}
+
+.stat-card {
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 16px;
+    text-align: center;
+    width: 120px;
+    backdrop-filter: blur(10px);
+}
+
+.stat-card h3 {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.stat-card p {
+    font-size: 22px;
+    font-weight: bold;
+}
+.challan-card {
+    background: rgba(255,255,255,0.08);
+    padding: 20px;
+    border-radius: 16px;
+    width: 260px;
+    margin: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.status.paid {
+    color: #00ff9d;
+}
+
+.status.unpaid {
+    color: #ff4d6d;
+}
+
+.pay-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: linear-gradient(45deg, #ff4d8d, #6c5ce7);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+.invoice-btn {
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    border-radius: 8px;
+    color: white;
+}
+/* challan layout */
+.challan-container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* make cards in row */
+.challan-wrapper {
+     display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.challan-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+/* MAIN LAYOUT FIX */
+.main-layout {
+    display: flex;
+    gap: 40px;
+    padding: 40px;
+    align-items: flex-start;
+}
+
+/* LEFT PANEL */
+.left-panel {
+    width: 260px;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 20px;
+    height: fit-content;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+    flex: 1;
+}
+/* profile */
+.user-profile {
+    background: rgba(255,255,255,0.06);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+.user-page {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT SIDEBAR */
+.user-sidebar {
+    width: 260px;
+    padding: 25px;
+    background: rgba(0,0,0,0.2);
+}
+
+/* RIGHT SIDE */
+.user-main {
+    margin-left: 280px;
+    padding: 40px;
+    text-align: center;
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+.user-menu {
+    margin-top: 40px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.user-menu button {
+
+    width: 100%;
+
+    background: transparent;
+    border: none;
+
+    color: #cfd8e3;
+
+    font-size: 18px;
+    text-align: left;
+
+    padding: 14px 18px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: 0.3s ease;
+}
+
+.user-menu button:hover {
+
+    background: linear-gradient(
+        90deg,
+        rgba(131, 58, 180, 0.35),
+        rgba(253, 29, 29, 0.15)
+    );
+
+    color: white;
+
+    transform: translateX(6px);
+}
+/* logout */
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #ff4d4d, #ff7a7a);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+}
+.logout-container {
+    margin-top: auto; 
+    display: flex;
+    justify-content: center;
+}
+
+.filters {
+    margin-bottom: 20px;
+}
+
+.filters button {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    padding: 6px 14px;
+    margin: 0 5px;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.filters button:hover {
+    background: #ff4d94;
+    transform: scale(1.05);
+}
+.left-panel {
+    width: 260px;
+    padding-left: 20px;  /* 🔥 THIS FIXES THE LOOK */
+}
+body {
+    overflow-x: hidden;
+}
+.left-panel {
+    width: 260px;
+    padding: 20px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 15px;
+    height: fit-content;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+.right-panel {
+    text-align: left;
+}
+.user-left-strip {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: 240px;
+    height: 100vh;
+
+    padding: 30px 20px;
+
+    background: linear-gradient(
+        180deg,
+        #050816,
+        #07142f
+    );
+
+    box-shadow: 4px 0 25px rgba(0,0,0,0.3);
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 100;
+}
+
+.user-left-strip h2 {
+
+    color: white;
+    font-size: 32px;
+    line-height: 1.2;
+
+    margin-bottom: 30px;
+}
+.filters button {
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+}
+
+.filters button:hover {
+    background: #ff4d94;
+}
+/* ================= PAYMENT UI ================= */
+
+.payment-container{
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.payment-methods{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.method-btn{
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.method-btn:hover{
+    background: rgba(236,72,153,0.3);
+}
+
+.method-btn.active{
+    background: linear-gradient(135deg,#ec4899,#8b5cf6);
+}
+
+.payment-box{
+    width: 420px;
+    background: rgba(255,255,255,0.05);
+    padding: 30px;
+    border-radius: 18px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.payment-box h2{
+    margin-bottom: 20px;
+}
+
+.payment-box input{
+    width: 100%;
+    padding: 14px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: white;
+    font-size: 15px;
+}
+
+.payment-row{
+    display: flex;
+    gap: 15px;
+}
+
+.big-pay-btn{
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    font-size: 16px;
+}
+#success-toast{
+    position: fixed;
+    top: 30px;
+    right: -400px;
+
+    background: linear-gradient(135deg,#22c55e,#16a34a);
+
+    color: white;
+
+    padding: 18px 30px;
+
+    border-radius: 14px;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+
+    transition: 0.5s;
+
+    z-index: 9999;
+}
+/* INVOICE MODAL */
+
+.invoice-modal{
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0,0,0,0.6);
+
+    display: none;
+
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.invoice-content{
+
+    width: 400px;
+
+    background: rgba(20,20,40,0.95);
+
+    padding: 30px;
+
+    border-radius: 20px;
+
+    color: white;
+
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+
+    position: relative;
+
+    animation: popup 0.3s ease;
+}
+
+.invoice-content h2{
+    margin-bottom: 20px;
+}
+
+.invoice-content p{
+    margin: 14px 0;
+}
+
+.close-btn{
+
+    position: absolute;
+
+    top: 15px;
+    right: 20px;
+
+    cursor: pointer;
+
+    font-size: 20px;
+}
+
+@keyframes popup{
+
+    from{
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to{
+        transform: scale(1);
+        opacity: 1;
+    }
+
+}
+/* ================= NOTIFICATION BELL ================= */
+
+.notification-wrapper{
+
+    position: absolute;
+
+    top: 30px;
+    right: 40px;
+
+    z-index: 999;
+}
+
+.notification-bell{
+
+    position: relative;
+
+    width: 55px;
+    height: 55px;
+
+    border-radius: 50%;
+
+    background: rgba(255,255,255,0.08);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 24px;
+
+    cursor: pointer;
+
+    backdrop-filter: blur(10px);
+
+    box-shadow: 0 0 15px rgba(236,72,153,0.3);
+
+    transition: 0.3s;
+}
+
+.notification-bell:hover{
+
+    transform: scale(1.08);
+
+}
+
+#notificationCount{
+
+    position: absolute;
+
+    top: -5px;
+    right: -5px;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: #ef4444;
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.notification-panel{
+
+    width: 320px;
+
+    background: rgba(20,20,40,0.95);
+
+    margin-top: 15px;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    display: none;
+
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+}
+
+.notification-item{
+
+    padding: 18px;
+
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+
+    color: white;
+
+    transition: 0.3s;
+}
+
+.notification-item:hover{
+
+    background: rgba(255,255,255,0.05);
+
+}
+/* LIVE CHALLAN ANIMATION */
+
+@keyframes slideInCard{
+
+    from{
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to{
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+.live-card{
+
+    animation: slideInCard 0.6s ease;
+
+    border: 1px solid rgba(239,68,68,0.4);
+
+    box-shadow: 0 0 20px rgba(239,68,68,0.2);
+
+}
