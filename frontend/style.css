@@ -233,25 +233,31 @@ video {
     width: 100%;
     border-radius: 10px;
 }
-
 /* 🧠 YOLO OUTPUT */
-.yolo-output {
+.yolo-output{
     margin-top: 50px;
+    margin-left: 40px;
+
+    width: calc(100% - 80px);
+    box-sizing: border-box;
+
     text-align: center;
+    position: relative;
 
     background: rgba(15, 23, 42, 0.7);
     padding: 20px;
     border-radius: 12px;
+
     backdrop-filter: blur(12px);
+
     border: 1px solid rgba(255,255,255,0.08);
 }
 
-.yolo-output img {
+.yolo-output img{
     margin-top: 15px;
     border-radius: 10px;
     max-width: 90%;
 }
-
 /* ✨ OPTIONAL GLOW TEXT */
 h1, h2, h3 {
     text-shadow: 0 0 10px rgba(99,102,241,0.3);
@@ -476,11 +482,6 @@ body::after {
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 0 20px rgba(124,58,237,0.2);
-}
-.yolo-output {
-    text-align: center;
-    margin-top: 50px;
-    position: relative;
 }
 
 .yolo-output::before {
@@ -732,13 +733,28 @@ button:hover {
 
 .login-container input,
 .login-container select {
-    width: 100%;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-}
 
+    width: 92%;
+
+    padding: 16px;
+    margin-top: 18px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+
+    background: rgba(255,255,255,0.06);
+
+    color: white;
+
+    outline: none;
+
+    font-size: 15px;
+
+    backdrop-filter: blur(10px);
+}
+.login-container input::placeholder{
+    color: rgba(255,255,255,0.6);
+}
 .login-container button {
     width: 100%;
     padding: 10px;
@@ -969,8 +985,11 @@ button:hover {
     width: 260px;
     padding-left: 20px;  /* 🔥 THIS FIXES THE LOOK */
 }
-body {
+body{
+
     overflow-x: hidden;
+    min-height: 100vh;
+
 }
 .left-panel {
     width: 260px;
@@ -1317,4 +1336,154 @@ body {
 
     box-shadow: 0 0 20px rgba(239,68,68,0.2);
 
+}
+/* ACTIVE LOGIN BUTTON */
+
+.active-role{
+
+    background: linear-gradient(
+        90deg,
+        #ec4899,
+        #8b5cf6
+    ) !important;
+
+    box-shadow:
+    0 0 20px rgba(236,72,153,0.5);
+
+}
+.back-btn{
+
+    width: 100%;
+    margin-bottom: 15px;
+
+    background: rgba(255,255,255,0.08);
+
+    border: none;
+
+    padding: 10px;
+
+    border-radius: 10px;
+
+    color: white;
+
+    cursor: pointer;
+
+}
+/* HERO TEXT */
+
+.login-hero{
+
+    text-align: center;
+
+    margin-top: 60px;
+    margin-bottom: 40px;
+
+}
+
+.login-hero h1{
+
+    color: white;
+
+    font-size: 42px;
+
+    margin-bottom: 15px;
+
+    text-shadow:
+    0 0 20px rgba(255,255,255,0.15);
+
+}
+
+.login-hero p{
+
+    color: rgba(255,255,255,0.7);
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+}
+/* TOP RIGHT LOGOUT */
+
+.top-logout-btn{
+
+    position: absolute;
+
+    right: 30px;
+    top: 28px;
+
+    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #ec4899,
+        #8b5cf6
+    );
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.3s ease;
+
+    box-shadow:
+    0 0 15px rgba(236,72,153,0.25);
+
+}
+
+.top-logout-btn:hover{
+
+    transform: translateY(-2px);
+
+    box-shadow:
+    0 0 25px rgba(236,72,153,0.4);
+
+}
+.yolo-live-box{
+    position: relative;
+    display: inline-block;
+}
+
+.yolo-live-box img{
+    width: 500px;
+    border-radius: 16px;
+    border: 2px solid rgba(255,255,255,0.1);
+}
+
+.live-badge{
+    position: absolute;
+    top: 15px;
+    left: 15px;
+
+    background: red;
+    color: white;
+
+    padding: 6px 14px;
+    border-radius: 20px;
+
+    font-size: 13px;
+    font-weight: bold;
+
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse{
+    0%{
+        opacity: 1;
+    }
+
+    50%{
+        opacity: 0.5;
+    }
+
+    100%{
+        opacity: 1;
+    }
 }

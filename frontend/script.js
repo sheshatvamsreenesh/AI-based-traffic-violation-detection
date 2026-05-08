@@ -10,50 +10,130 @@ function login() {
 function logout() {
     window.location.href = "login.html";
 }
-function selectRole(role) {
-    const form = document.getElementById("loginForm");
+function selectRole(role){
 
-    if (role === "police") {
+    const form =
+    document.getElementById("loginForm");
+
+    const roleButtons =
+    document.querySelector(".role-buttons");
+
+    // HIDE ROLE BUTTONS
+    roleButtons.style.display = "none";
+
+    if(role === "police"){
+
         form.innerHTML = `
-            <input type="text" id="policeId" placeholder="Employee ID">
-            <input type="password" id="policePass" placeholder="Password">
-            <button onclick="loginPolice()">Login as Police</button>
+
+            <button class="back-btn"
+            onclick="goBack()">
+
+                ← Back
+
+            </button>
+
+           <input type="text"
+            id="policeId"
+            placeholder="Employee ID">
+
+            <input type="password"
+            id="policePass"
+            placeholder="Password">
+
+            <button onclick="loginPolice()">
+
+                Login as Police
+
+            </button>
+
         `;
-    } 
-    else if (role === "user") {
-        form.innerHTML = `
-            <input type="text" id="phone" placeholder="Phone Number">
-            <button onclick="sendOTP()">Send OTP</button>
-            <input type="text" id="otp" placeholder="Enter OTP">
-            <button onclick="loginUser()">Login as User</button>
-        `;
+
     }
+
+    else{
+
+        form.innerHTML = `
+
+            <button class="back-btn"
+            onclick="goBack()">
+
+                ← Back
+
+            </button>
+
+            <input type="text"
+            id="phoneNumber"
+            placeholder="Phone Number">
+
+            <button>
+
+                Send OTP
+
+            </button>
+
+                <input type="text"
+                id="otp"
+                placeholder="Enter OTP">
+
+            <button onclick="loginUser()">
+
+                Login as User
+
+            </button>
+
+        `;
+
+    }
+
+}
+function goBack(){
+
+    document.querySelector(".role-buttons")
+    .style.display = "flex";
+
+    document.getElementById("loginForm")
+    .innerHTML = "";
+
 }
 function loginPolice() {
-    const id = document.getElementById("policeId").value;
-    const pass = document.getElementById("policePass").value;
+const policeIdInput =
+document.getElementById("policeId");
 
-    if (id === "" || pass === "") {
-        alert("Enter credentials");
-        return;
-    }
+const policePassInput =
+document.getElementById("policePass");
 
-    // 👉 Later: connect backend
+if(!policeIdInput || !policePassInput){
+    return;
+}
+
+const id = policeIdInput.value;
+const pass = policePassInput.value;
+
     window.location.href = "index.html";
 }
 function sendOTP() {
     alert("OTP sent");
 }
 function loginUser() {
-    const phone = document.getElementById("phone").value;
-    const otp = document.getElementById("otp").value;
 
-    if (phone === "" || otp === "") {
-        alert("Enter phone and OTP");
+    const phoneInput =
+    document.getElementById("phoneNumber");
+
+    const otpInput =
+    document.getElementById("otp");
+
+    if(!phoneInput || !otpInput){
         return;
     }
 
-    // 👉 Later: verify OTP from backend
+    const phone = phoneInput.value;
+    const otp = otpInput.value;
+
+    if(phone === "" || otp === "") {
+        alert("Enter phone number and OTP");
+        return;
+    }
+
     window.location.href = "user.html";
 }
 function filterChallans(type) {
@@ -204,6 +284,8 @@ function toggleNotifications() {
     const panel =
     document.getElementById("notificationPanel");
 
+    if(!panel) return;
+
     if(panel.style.display === "block"){
 
         panel.style.display = "none";
@@ -250,31 +332,7 @@ setTimeout(() => {
 
     `;
 
+    if(grid){
     grid.prepend(newCard);
-
-    // UPDATE NOTIFICATION COUNT
-    const count =
-    document.getElementById("notificationCount");
-
-    count.innerText =
-    parseInt(count.innerText) + 1;
-
-    // ADD NOTIFICATION
-    const panel =
-    document.getElementById("notificationPanel");
-
-    const item =
-    document.createElement("div");
-
-    item.className = "notification-item";
-
-    item.innerHTML =
-    "🚫 Triple Riding challan detected";
-
-    panel.prepend(item);
-
-    // UPDATE PENDING COUNT
-    document.getElementById("pendingCount")
-    .innerText = "4";
-
+}
 }, 6000);

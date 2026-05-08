@@ -7,16 +7,47 @@
 </head>
 
 <body>
+<div class="login-hero">
 
+    <h1>
+
+        State Traffic Police
+
+    </h1>
+
+    <p>
+
+        AI-powered traffic monitoring,
+        smart challan management and
+        real-time violation tracking system.
+
+    </p>
+
+</div>
 <div class="login-container">
     <h2>🚦 Smart Traffic System</h2>
 
-    <!-- ROLE SELECT -->
-    <div class="role-buttons">
-        <button onclick="selectRole('police')">👮 Police</button>
-        <button onclick="selectRole('user')">👤 User</button>
-    </div>
 
+    <!-- ROLE SELECT -->
+<div class="role-buttons">
+
+    <button id="policeBtn"
+            onclick="selectRole('police')">
+
+        👮 Police
+
+    </button>
+
+    <button id="userBtn"
+            onclick="selectRole('user')">
+
+        👤 User
+
+    </button>
+
+</div>
+
+<div id="loginForm"></div>
     <!-- LOGIN FORM -->
     <div id="loginForm"></div>
 </div>
