@@ -19,7 +19,7 @@ class Challan(Base):
     violation_type = Column(String(50))
     amount = Column(Integer)
     status = Column(String(20))  # "unpaid" or "paid"
------------------------------------------------------
+
 from pydantic import BaseModel
 from typing import Optional
 
@@ -43,7 +43,7 @@ class ChallanResponse(BaseModel):
 
     class Config:
         orm_mode = True
-----------------------------------------------------
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -105,7 +105,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         "user_id": db_user.id,
         "role": db_user.role
     }
-------------------------------------------------------
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import SessionLocal
@@ -146,7 +146,7 @@ def pay_challan(challan_id: int, db: Session = Depends(get_db)):
 @router.get("/all-challans")
 def get_all_challans(db: Session = Depends(get_db)):
     return db.query(Challan).all()
-----------------------------------------------------------
+
 from fastapi import FastAPI
 from database import Base, engine
 from routes import auth, challan
