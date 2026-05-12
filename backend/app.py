@@ -13,15 +13,15 @@ from reportlab.pdfgen import canvas
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = "uploads"
-OUTPUT_FOLDER = "outputs"
+UPLOAD_FOLDER = "data/uploads"
+OUTPUT_FOLDER = "data/outputs"
 DB_NAME = "traffic.db"
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # ---------------- YOLOv8 MODEL ----------------
-model = YOLO("best.pt")  # replace with your trained model
+model = YOLO("yolov8n.pt")  # replace with your trained model
 CLASS_NAMES = model.names
 
 # ---------------- DATABASE ----------------
@@ -119,34 +119,21 @@ def run_yolo_detection(video_path):
             x1, y1, x2, y2 = map(int, box.xyxy[0])
 
             # ---------------- DRAW ----------------
-            if label == "person":
-                person = True
-                color = (255, 0, 0)
+        if label == "person":
+            person = True
+            color = (255, 0, 0)
 
-            elif label == "helmet":
-                helmet = True
-                color = (0, 255, 0)
+        elif label in ["car", "motorcycle", "bus", "truck"]:
+            color = (0, 255, 0)
 
-            elif label in ["red_light", "traffic_light_red"]:
-                red_light = True
-                color = (0, 0, 255)
+        elif label == "traffic light":
+            red_light = True
+            color = (0, 0, 255)
 
-            else:
-                color = (200, 200, 200)
-
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(frame, label, (x1, y1 - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        else:
+            color = (200, 200, 200)
 
         # ---------------- RULE ENGINE ----------------
-
-        if person and not helmet:
-            violations.append({
-                "type": "Helmet Violation",
-                "fine": 500,
-                "frame": frame_id
-            })
-
         if red_light:
             violations.append({
                 "type": "Signal Jump",

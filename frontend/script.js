@@ -154,6 +154,37 @@ function logout() {
     window.location.href = "login.html";
 }
 console.log("JS CONNECTED");
+
+function applyTheme(isDarkMode) {
+    document.body.classList.toggle("light-mode", !isDarkMode);
+    localStorage.setItem("trafficDashboardTheme", isDarkMode ? "dark" : "light");
+}
+
+function initThemeToggle() {
+    const darkModeToggle =
+    document.getElementById("userDarkMode");
+
+    if(!darkModeToggle){
+        return;
+    }
+
+    const savedTheme =
+    localStorage.getItem("trafficDashboardTheme");
+
+    const isDarkMode =
+    savedTheme !== "light";
+
+    applyTheme(isDarkMode);
+
+    darkModeToggle.checked = isDarkMode;
+
+    darkModeToggle.addEventListener("change", () => {
+        applyTheme(darkModeToggle.checked);
+    });
+}
+
+document.addEventListener("DOMContentLoaded", initThemeToggle);
+
 function filterChallans(type) {
 
     const paidCards = document.querySelectorAll(".paid-card");
@@ -299,6 +330,19 @@ function toggleNotifications() {
     }
 
 }
+
+function toggleUserSidebar() {
+    const isCollapsed =
+    document.body.classList.toggle("user-sidebar-collapsed");
+
+    const toggleButton =
+    document.querySelector(".user-sidebar-toggle");
+
+    if(toggleButton){
+        toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    }
+}
+
 /* LIVE CHALLAN ADD */
 setTimeout(() => {
 
@@ -336,3 +380,13 @@ setTimeout(() => {
     grid.prepend(newCard);
 }
 }, 6000);
+function goHome(){
+
+    window.scrollTo({
+
+        top: 0,
+        behavior: "smooth"
+
+    });
+
+}

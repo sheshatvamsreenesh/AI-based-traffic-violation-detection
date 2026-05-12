@@ -18,15 +18,30 @@
 <div class="navbar">
     <!-- ☰ Hamburger Button -->
     <span class="menu-btn" onclick="toggleSidebar()" id="menuBtn">☰</span>
+    <div class="top-bar">
 
-    <h2>🚦 AI-Based Smart Traffic Violation Detection System</h2>
-    <button class="top-logout-btn"
-        onclick="logout()">
+        <h2> AI-Based Smart Traffic Violation Detection System</h2>
 
-    Logout →
-    </button>
+        <div class="top-actions">
+
+            <button class="home-btn"
+            onclick="goHome()">
+
+                🏠 Home
+
+            </button>
+
+            <button class="top-logout-btn"
+            onclick="logout()">
+
+                Logout →
+
+            </button>
+
+        </div>
+
+    </div>
 </div>
-
 
 <!-- 🧱 SIDEBAR -->
 
@@ -152,7 +167,57 @@
 
 <!-- 📂 UPLOAD PAGE -->
 <div id="uploadPage" class="page">
-    <p style="text-align:center; margin-top:50px; opacity:0.6;">
+    <section class="recent-uploads">
+        <div class="recent-uploads-header">
+            <h1>Recent Uploads</h1>
+            <p>Demo processing history for AI traffic violation analysis</p>
+        </div>
+
+        <div class="recent-upload-grid">
+            <div class="recent-upload-card">
+                <div class="upload-thumbnail signal-feed">
+                    <span class="play-marker">▶</span>
+                    <span class="camera-tag">CAM-04</span>
+                </div>
+                <div class="recent-upload-content">
+                    <h3>junction_signal_04.mp4</h3>
+                    <p class="upload-date">Uploaded: 12 May 2026</p>
+                    <span class="processing-status completed">Processed</span>
+                    <p><strong>Detected:</strong> Signal Jump, Stop Line Violation</p>
+                    <button class="report-btn">Download Report</button>
+                </div>
+            </div>
+
+            <div class="recent-upload-card">
+                <div class="upload-thumbnail highway-feed">
+                    <span class="play-marker">▶</span>
+                    <span class="camera-tag">HWY-12</span>
+                </div>
+                <div class="recent-upload-content">
+                    <h3>highway_lane_scan.mp4</h3>
+                    <p class="upload-date">Uploaded: 11 May 2026</p>
+                    <span class="processing-status reviewing">Reviewing</span>
+                    <p><strong>Detected:</strong> Overspeeding, Lane Violation</p>
+                    <button class="report-btn">Download Report</button>
+                </div>
+            </div>
+
+            <div class="recent-upload-card">
+                <div class="upload-thumbnail helmet-feed">
+                    <span class="play-marker">▶</span>
+                    <span class="camera-tag">ZONE-07</span>
+                </div>
+                <div class="recent-upload-content">
+                    <h3>two_wheeler_entry.mp4</h3>
+                    <p class="upload-date">Uploaded: 10 May 2026</p>
+                    <span class="processing-status completed">Processed</span>
+                    <p><strong>Detected:</strong> No Helmet, Triple Riding</p>
+                    <button class="report-btn">Download Report</button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <p class="legacy-upload-placeholder" style="text-align:center; margin-top:50px; opacity:0.6;">
     Upload features will be expanded here later 🚀
     </p>
 </div>
