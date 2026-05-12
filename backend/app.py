@@ -8,7 +8,6 @@ import cv2
 from ultralytics import YOLO
 from reportlab.pdfgen import canvas
 
-# ---------------- APP SETUP ----------------
 app = Flask(__name__)
 CORS(app)
 
@@ -19,11 +18,10 @@ DB_NAME = "traffic.db"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-# ---------------- YOLO MODEL ----------------
 model = YOLO("yolov8n.pt")
 CLASS_NAMES = model.names
 
-# ---------------- DATABASE ----------------
+# ---------------- DB ----------------
 def init_db():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
@@ -31,7 +29,7 @@ def init_db():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
+        username TEXT,
         password TEXT,
         role TEXT
     )
@@ -55,8 +53,10 @@ def seed_users():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
-    cursor.execute("INSERT OR IGNORE INTO users (username,password,role) VALUES ('user','123','user')")
-    cursor.execute("INSERT OR IGNORE INTO users (username,password,role) VALUES ('police','123','police')")
+    cursor.execute("SELECT * FROM users")
+    if not cursor.fetchall():
+        cursor.execute("INSERT INTO users VALUES (NULL,'police1','1234','police')")
+        cursor.execute("INSERT INTO users VALUES (NULL,'user1','1234','user')")
 
     conn.commit()
     conn.close()
@@ -68,31 +68,39 @@ seed_users()
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
-    username = data['username']
-    password = data['password']
 
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
-    cursor.execute("SELECT role FROM users WHERE username=? AND password=?", (username, password))
-    user = cursor.fetchone()
+    cursor.execute(
+        "SELECT role FROM users WHERE username=? AND password=?",
+        (data['username'], data['password'])
+    )
 
+    user = cursor.fetchone()
     conn.close()
 
     if user:
         return jsonify({
             "status": "success",
             "role": user[0],
-            "username": username
+            "username": data['username']
         })
 
     return jsonify({"status": "fail"})
 
-# ---------------- YOLO PROCESSING ----------------
-def run_yolo_detection(video_path):
+# ---------------- YOLO ----------------
+def run_yolo(video_path):
     cap = cv2.VideoCapture(video_path)
 
-    output_image_path = os.path.join(OUTPUT_FOLDER, "result.jpg")
+    output_path = os.path.join(OUTPUT_FOLDER, "result.avi")
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    out = cv2.VideoWriter(output_path, fourcc, fps, (w, h))
 
     violations = []
     frame_id = 0
@@ -103,6 +111,7 @@ def run_yolo_detection(video_path):
             break
 
         results = model(frame)[0]
+
         red_light = False
 
         for box in results.boxes:
@@ -110,57 +119,49 @@ def run_yolo_detection(video_path):
             label = CLASS_NAMES[cls_id]
             x1, y1, x2, y2 = map(int, box.xyxy[0])
 
-            if label == "person":
-                color = (255, 0, 0)
-            elif label in ["car", "motorcycle", "bus", "truck"]:
-                color = (0, 255, 0)
-            elif label == "traffic light":
+            if label == "traffic light":
                 red_light = True
                 color = (0, 0, 255)
             else:
-                color = (200, 200, 200)
+                color = (0, 255, 0)
 
-            # draw box
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(frame, label, (x1, y1 - 10),
+            cv2.rectangle(frame, (x1,y1), (x2,y2), color, 2)
+            cv2.putText(frame, label, (x1,y1-5),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-        # limit spam
-        if red_light and frame_id % 30 == 0:
+        if red_light:
             violations.append({
                 "type": "Signal Jump",
-                "fine": 1000,
-                "frame": frame_id
+                "fine": 1000
             })
 
+        out.write(frame)
         frame_id += 1
 
-    # save LAST frame as output image (for frontend)
-    cv2.imwrite(output_image_path, frame)
-
     cap.release()
+    out.release()
 
-    return violations, output_image_path
+    return violations, output_path
 
-# ---------------- VIDEO UPLOAD ----------------
+# ---------------- UPLOAD ----------------
 @app.route('/upload', methods=['POST'])
-def upload_video():
+def upload():
     file = request.files['file']
-    username = request.form.get("username", "user")
+    username = request.form.get("username", "user1")
 
     filename = str(uuid.uuid4()) + ".mp4"
     path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(path)
 
-    violations, output_image = run_yolo_detection(path)
+    violations, output = run_yolo(path)
 
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     for v in violations:
         cursor.execute("""
-            INSERT INTO challans (username, violation, amount, status, date)
-            VALUES (?, ?, ?, ?, ?)
+        INSERT INTO challans (username, violation, amount, status, date)
+        VALUES (?, ?, ?, ?, ?)
         """, (
             username,
             v["type"],
@@ -174,20 +175,18 @@ def upload_video():
 
     return jsonify({
         "status": "success",
-        "violations": violations,
-        "output": output_image   # ✅ matches frontend
+        "violations": violations
     })
 
-# ---------------- USER CHALLANS ----------------
+# ---------------- GET CHALLANS ----------------
 @app.route('/challans/<username>')
 def get_challans(username):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT violation, amount, status, date
-        FROM challans
-        WHERE username=?
+    SELECT violation, amount, status, date
+    FROM challans WHERE username=?
     """, (username,))
 
     data = cursor.fetchall()
@@ -207,64 +206,19 @@ def get_challans(username):
 @app.route('/pay', methods=['POST'])
 def pay():
     data = request.json
-    username = data['username']
-    violation = data['violation']
 
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
     cursor.execute("""
-        UPDATE challans
-        SET status='paid'
-        WHERE username=? AND violation=?
-    """, (username, violation))
+    UPDATE challans SET status='paid'
+    WHERE username=? AND violation=?
+    """, (data['username'], data['violation']))
 
     conn.commit()
     conn.close()
 
     return jsonify({"status": "paid"})
-
-# ---------------- INVOICE ----------------
-@app.route('/invoice/<username>')
-def invoice(username):
-    file_path = os.path.join(OUTPUT_FOLDER, f"{username}_invoice.pdf")
-
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT violation, amount, status
-        FROM challans
-        WHERE username=?
-    """, (username,))
-
-    data = cursor.fetchall()
-    conn.close()
-
-    pdf = canvas.Canvas(file_path)
-    pdf.drawString(100, 800, f"Traffic Invoice - {username}")
-
-    y = 750
-    for d in data:
-        pdf.drawString(100, y, f"{d[0]} | ₹{d[1]} | {d[2]}")
-        y -= 30
-
-    pdf.save()
-
-    return send_file(file_path, as_attachment=True)
-
-# ---------------- POLICE ----------------
-@app.route('/police/violations')
-def police_dashboard():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM challans")
-    data = cursor.fetchall()
-
-    conn.close()
-
-    return jsonify(data)
 
 # ---------------- RUN ----------------
 if __name__ == '__main__':
