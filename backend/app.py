@@ -119,6 +119,11 @@ def run_yolo(video_path):
             label = CLASS_NAMES[cls_id]
             x1, y1, x2, y2 = map(int, box.xyxy[0])
 
+            if label == "person":
+                person = True
+            elif label == "traffic light":
+                red_light = True
+
             if label == "traffic light":
                 red_light = True
                 color = (0, 0, 255)
