@@ -1,392 +1,176 @@
+// ---------------- LOGIN ----------------
 function login() {
     const role = document.getElementById("role").value;
-
     if (role === "police") {
         window.location.href = "index.html";
     } else {
         window.location.href = "user.html";
     }
 }
+
 function logout() {
     window.location.href = "login.html";
 }
+
+// ---------------- ROLE SELECT ----------------
 function selectRole(role){
+    const form = document.getElementById("loginForm");
+    const roleButtons = document.querySelector(".role-buttons");
 
-    const form =
-    document.getElementById("loginForm");
-
-    const roleButtons =
-    document.querySelector(".role-buttons");
-
-    // HIDE ROLE BUTTONS
     roleButtons.style.display = "none";
 
     if(role === "police"){
-
         form.innerHTML = `
-
-            <button class="back-btn"
-            onclick="goBack()">
-
-                ← Back
-
-            </button>
-
-           <input type="text"
-            id="policeId"
-            placeholder="Employee ID">
-
-            <input type="password"
-            id="policePass"
-            placeholder="Password">
-
-            <button onclick="loginPolice()">
-
-                Login as Police
-
-            </button>
-
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <input type="text" id="policeId" placeholder="Employee ID">
+            <input type="password" id="policePass" placeholder="Password">
+            <button onclick="loginPolice()">Login as Police</button>
         `;
-
-    }
-
-    else{
-
+    } else {
         form.innerHTML = `
-
-            <button class="back-btn"
-            onclick="goBack()">
-
-                ← Back
-
-            </button>
-
-            <input type="text"
-            id="phoneNumber"
-            placeholder="Phone Number">
-
-            <button>
-
-                Send OTP
-
-            </button>
-
-                <input type="text"
-                id="otp"
-                placeholder="Enter OTP">
-
-            <button onclick="loginUser()">
-
-                Login as User
-
-            </button>
-
+            <button class="back-btn" onclick="goBack()">← Back</button>
+            <input type="text" id="phoneNumber" placeholder="Phone Number">
+            <button onclick="sendOTP()">Send OTP</button>
+            <input type="text" id="otp" placeholder="Enter OTP">
+            <button onclick="loginUser()">Login as User</button>
         `;
-
     }
-
 }
+
 function goBack(){
-
-    document.querySelector(".role-buttons")
-    .style.display = "flex";
-
-    document.getElementById("loginForm")
-    .innerHTML = "";
-
+    document.querySelector(".role-buttons").style.display = "flex";
+    document.getElementById("loginForm").innerHTML = "";
 }
+
+// ---------------- LOGIN HANDLERS ----------------
 function loginPolice() {
-const policeIdInput =
-document.getElementById("policeId");
-
-const policePassInput =
-document.getElementById("policePass");
-
-if(!policeIdInput || !policePassInput){
-    return;
-}
-
-const id = policeIdInput.value;
-const pass = policePassInput.value;
-
     window.location.href = "index.html";
 }
+
 function sendOTP() {
     alert("OTP sent");
 }
+
 function loginUser() {
+    const phone = document.getElementById("phoneNumber").value;
 
-    const phoneInput =
-    document.getElementById("phoneNumber");
-
-    const otpInput =
-    document.getElementById("otp");
-
-    if(!phoneInput || !otpInput){
+    if(phone === "") {
+        alert("Enter phone number");
         return;
     }
 
-    const phone = phoneInput.value;
-    const otp = otpInput.value;
-
-    if(phone === "" || otp === "") {
-        alert("Enter phone number and OTP");
-        return;
-    }
+    // store username (important for backend)
+    localStorage.setItem("username", phone);
 
     window.location.href = "user.html";
 }
-function filterChallans(type) {
-    const cards = document.querySelectorAll(".challan-card");
 
-    cards.forEach(card => {
-        if (type === "all") {
-            card.style.display = "block";
-        } else if (card.classList.contains(type)) {
-            card.style.display = "block";
-        } else {
-            card.style.display = "none";
-        }
+// ---------------- BACKEND: LOAD CHALLANS ----------------
+function loadChallans() {
+    const user = localStorage.getItem("username");
+    if (!user) return;
+
+    fetch(`http://127.0.0.1:5000/challans/${user}`)
+    .then(res => res.json())
+    .then(data => {
+        console.log("Challans:", data);
     });
 }
 
-function logout() {
-    window.location.href = "login.html";
-}
-console.log("JS CONNECTED");
+// ---------------- BACKEND: PAYMENT ----------------
+function processPayment() {
+    const user = localStorage.getItem("username");
 
+    fetch("http://127.0.0.1:5000/pay", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            username: user,
+            violation: "Signal Jump"
+        })
+    })
+    .then(res => res.json())
+    .then(() => {
+        alert("Payment Successful");
+        loadChallans();
+    });
+}
+
+// ---------------- BACKEND: UPLOAD VIDEO ----------------
+function uploadVideo(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("username", localStorage.getItem("username"));
+
+    fetch("http://127.0.0.1:5000/upload", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert("Violations detected: " + data.violations.length);
+    });
+}
+
+// ---------------- UI FUNCTIONS ----------------
+function showSection(sectionId) {
+    const sections = document.querySelectorAll(".user-section");
+    sections.forEach(section => section.style.display = "none");
+    document.getElementById(sectionId).style.display = "block";
+}
+
+function openInvoice() {
+    document.getElementById("invoiceModal").style.display = "flex";
+}
+
+function closeInvoice() {
+    document.getElementById("invoiceModal").style.display = "none";
+}
+
+// ---------------- THEME ----------------
 function applyTheme(isDarkMode) {
     document.body.classList.toggle("light-mode", !isDarkMode);
     localStorage.setItem("trafficDashboardTheme", isDarkMode ? "dark" : "light");
 }
 
 function initThemeToggle() {
-    const darkModeToggle =
-    document.getElementById("userDarkMode");
+    const toggle = document.getElementById("userDarkMode");
+    if(!toggle) return;
 
-    if(!darkModeToggle){
-        return;
-    }
-
-    const savedTheme =
-    localStorage.getItem("trafficDashboardTheme");
-
-    const isDarkMode =
-    savedTheme !== "light";
+    const savedTheme = localStorage.getItem("trafficDashboardTheme");
+    const isDarkMode = savedTheme !== "light";
 
     applyTheme(isDarkMode);
+    toggle.checked = isDarkMode;
 
-    darkModeToggle.checked = isDarkMode;
-
-    darkModeToggle.addEventListener("change", () => {
-        applyTheme(darkModeToggle.checked);
+    toggle.addEventListener("change", () => {
+        applyTheme(toggle.checked);
     });
 }
 
-document.addEventListener("DOMContentLoaded", initThemeToggle);
-
+// ---------------- FILTER ----------------
 function filterChallans(type) {
-
     const paidCards = document.querySelectorAll(".paid-card");
     const unpaidCards = document.querySelectorAll(".unpaid-card");
 
     if(type === "all") {
-
-        paidCards.forEach(card => {
-            card.style.display = "block";
-        });
-
-        unpaidCards.forEach(card => {
-            card.style.display = "block";
-        });
-
+        paidCards.forEach(c => c.style.display = "block");
+        unpaidCards.forEach(c => c.style.display = "block");
     }
-
     else if(type === "paid") {
-
-        paidCards.forEach(card => {
-            card.style.display = "block";
-        });
-
-        unpaidCards.forEach(card => {
-            card.style.display = "none";
-        });
-
+        paidCards.forEach(c => c.style.display = "block");
+        unpaidCards.forEach(c => c.style.display = "none");
     }
-
-    else if(type === "unpaid") {
-
-        paidCards.forEach(card => {
-            card.style.display = "none";
-        });
-
-        unpaidCards.forEach(card => {
-            card.style.display = "block";
-        });
-
-    }
-}
-function showSection(sectionId) {
-
-    const sections = document.querySelectorAll(".user-section");
-
-    sections.forEach(section => {
-        section.style.display = "none";
-    });
-
-    document.getElementById(sectionId).style.display = "block";
-}
-function processPayment() {
-
-    const toast =
-    document.getElementById("success-toast");
-
-    const paymentBtn =
-    document.getElementById("paymentBtn");
-
-    const paymentText =
-    document.getElementById("paymentText");
-
-    // LOADING STATE
-    paymentBtn.disabled = true;
-
-    paymentText.innerHTML =
-    "⏳ Processing Payment...";
-
-    paymentBtn.style.opacity = "0.7";
-
-    // FAKE PROCESSING
-    setTimeout(() => {
-
-        // SUCCESS POPUP
-        toast.style.right = "30px";
-
-        // UPDATE COUNTS
-        document.getElementById("paidCount")
-        .innerText = "3";
-
-        document.getElementById("pendingCount")
-        .innerText = "2";
-
-        // CHANGE BUTTON
-        paymentText.innerHTML =
-        "✅ Payment Successful";
-
-        paymentBtn.style.background =
-        "linear-gradient(135deg,#22c55e,#16a34a)";
-
-        setTimeout(() => {
-
-            toast.style.right = "-400px";
-
-            // RESET BUTTON
-            paymentText.innerHTML =
-            "Pay ₹500";
-
-            paymentBtn.disabled = false;
-
-            paymentBtn.style.opacity = "1";
-
-            paymentBtn.style.background = "";
-
-            // GO TO DOWNLOADS
-            showSection('download-section');
-
-        }, 2500);
-
-    }, 2000);
-
-}
-function openInvoice() {
-
-    document.getElementById("invoiceModal")
-    .style.display = "flex";
-
-}
-
-function closeInvoice() {
-
-    document.getElementById("invoiceModal")
-    .style.display = "none";
-
-}
-function toggleNotifications() {
-
-    const panel =
-    document.getElementById("notificationPanel");
-
-    if(!panel) return;
-
-    if(panel.style.display === "block"){
-
-        panel.style.display = "none";
-
-    }
-
-    else{
-
-        panel.style.display = "block";
-
-    }
-
-}
-
-function toggleUserSidebar() {
-    const isCollapsed =
-    document.body.classList.toggle("user-sidebar-collapsed");
-
-    const toggleButton =
-    document.querySelector(".user-sidebar-toggle");
-
-    if(toggleButton){
-        toggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    else {
+        paidCards.forEach(c => c.style.display = "none");
+        unpaidCards.forEach(c => c.style.display = "block");
     }
 }
 
-/* LIVE CHALLAN ADD */
-setTimeout(() => {
+// ---------------- INIT ----------------
+document.addEventListener("DOMContentLoaded", () => {
+    initThemeToggle();
+    loadChallans();
+});
 
-    const grid =
-    document.querySelector(".challan-grid");
-
-    const newCard =
-    document.createElement("div");
-
-    newCard.className =
-    "challan-card unpaid-card live-card";
-
-    newCard.innerHTML = `
-
-        <h3>🚫 Triple Riding</h3>
-
-        <p>Fine: ₹1000</p>
-
-        <p>Status:
-        <span class="status unpaid">
-        Unpaid
-        </span>
-        </p>
-
-        <button class="pay-btn"
-        onclick="showSection('payment-section')">
-
-            Pay Now
-
-        </button>
-
-    `;
-
-    if(grid){
-    grid.prepend(newCard);
-}
-}, 6000);
-function goHome(){
-
-    window.scrollTo({
-
-        top: 0,
-        behavior: "smooth"
-
-    });
-
-}
+console.log("FINAL JS CONNECTED");
