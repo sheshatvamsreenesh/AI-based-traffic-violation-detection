@@ -34,11 +34,65 @@ body {
     top: 50%;
     transform: translateY(-50%);
 
-    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 0;
     cursor: pointer;
     color: white;
+    border-radius: 12px;
+    border: 1px solid rgba(125, 211, 252, 0.32);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(8, 47, 73, 0.48));
+    box-shadow:
+        0 0 18px rgba(34, 211, 238, 0.22),
+        0 12px 30px rgba(2, 6, 23, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 
     z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+
+.menu-btn::before,
+.menu-btn::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 2px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 0 8px rgba(125, 211, 252, 0.55);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.menu-btn::before {
+    transform: translateY(-5px);
+}
+
+.menu-btn::after {
+    transform: translateY(5px);
+}
+
+.menu-btn:hover {
+    transform: translateY(-50%) scale(1.06);
+    border-color: rgba(34, 211, 238, 0.65);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.82), rgba(14, 116, 144, 0.58));
+    box-shadow:
+        0 0 28px rgba(34, 211, 238, 0.42),
+        0 16px 34px rgba(2, 6, 23, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.menu-btn.is-open::before {
+    transform: rotate(45deg);
+}
+
+.menu-btn.is-open::after {
+    transform: rotate(-45deg);
 }
 /* When sidebar is hidden */
 .navbar.full {
@@ -411,6 +465,103 @@ body::after {
     color: transparent;
 }
 
+.hero-title .hero-ai-line {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(8px, 1.2vw, 14px);
+    background: none;
+    background-clip: border-box;
+    -webkit-background-clip: border-box;
+    color: inherit;
+    vertical-align: middle;
+}
+
+.hero-title .hero-ai-text {
+    background: linear-gradient(90deg, #0ea5e9, #22d3ee);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.traffic-signal-icon {
+    width: clamp(20px, 3.4vw, 34px);
+    height: clamp(34px, 5vw, 52px);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(3px, 0.45vw, 5px);
+    flex: 0 0 auto;
+    padding: clamp(4px, 0.55vw, 6px);
+    border-radius: 999px;
+    border: 1px solid rgba(125, 211, 252, 0.34);
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.86), rgba(8, 47, 73, 0.62));
+    box-shadow:
+        0 0 18px rgba(34, 211, 238, 0.32),
+        0 10px 24px rgba(2, 6, 23, 0.34),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: signalGlow 2.6s ease-in-out infinite;
+}
+
+.traffic-signal-icon i {
+    width: clamp(5px, 0.85vw, 9px);
+    height: clamp(5px, 0.85vw, 9px);
+    display: block;
+    border-radius: 50%;
+    background: rgba(148, 163, 184, 0.45);
+}
+
+.traffic-signal-icon .signal-red {
+    background: #ff4d6d;
+    box-shadow: 0 0 9px rgba(255, 77, 109, 0.75);
+    animation: signalPulseRed 2.6s ease-in-out infinite;
+}
+
+.traffic-signal-icon .signal-yellow {
+    background: #fde047;
+    box-shadow: 0 0 9px rgba(253, 224, 71, 0.72);
+    animation: signalPulseYellow 2.6s ease-in-out infinite 0.35s;
+}
+
+.traffic-signal-icon .signal-green {
+    background: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    animation: signalPulseGreen 2.6s ease-in-out infinite 0.7s;
+}
+
+@keyframes signalGlow {
+    0%, 100% {
+        box-shadow:
+            0 0 16px rgba(34, 211, 238, 0.26),
+            0 10px 24px rgba(2, 6, 23, 0.32),
+            inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+    50% {
+        box-shadow:
+            0 0 26px rgba(34, 211, 238, 0.48),
+            0 14px 30px rgba(2, 6, 23, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+}
+
+@keyframes signalPulseRed {
+    0%, 100% { opacity: 0.65; transform: scale(0.92); }
+    20% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes signalPulseYellow {
+    0%, 100% { opacity: 0.65; transform: scale(0.92); }
+    45% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes signalPulseGreen {
+    0%, 100% { opacity: 0.7; transform: scale(0.94); }
+    70% { opacity: 1; transform: scale(1.1); }
+}
+
 .primary-btn:hover {
     transform: scale(1.05);
     box-shadow: 0 0 20px rgba(34,211,238,0.6);
@@ -478,10 +629,25 @@ body::after {
     color: #22d3ee;
     transform: translateX(5px);
 }
-.camera-box video {
+.camera-box video,
+.camera-box img,
+.camera-placeholder {
+    display: block;
+    width: 100%;
     border-radius: 12px;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 0 20px rgba(14,165,233,0.2);
+}
+
+.camera-placeholder {
+    min-height: 170px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    color: #94a3b8;
+    background: rgba(2, 6, 23, 0.35);
 }
 
 .yolo-output::before {
@@ -605,9 +771,6 @@ body::after {
         transform: translateY(0);
     }
 }
-setInterval(() => {
-    addLog("🚗 Vehicle detected at signal", "normal");
-}, 3000);
 /* base */
 .log-item {
     display: flex;

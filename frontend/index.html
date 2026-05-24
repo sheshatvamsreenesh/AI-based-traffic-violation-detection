@@ -66,7 +66,14 @@
         
         <h1 class="hero-title">
             Smart Traffic Monitoring <br>
-            <span>Powered by AI 🚦</span>
+            <span class="hero-ai-line">
+                <span class="traffic-signal-icon" aria-hidden="true">
+                    <i class="signal-red"></i>
+                    <i class="signal-yellow"></i>
+                    <i class="signal-green"></i>
+                </span>
+                <span class="hero-ai-text">Powered by AI</span>
+            </span>
         </h1>
 
         <p class="hero-subtitle">
@@ -145,8 +152,10 @@
     <div class="camera-section">
 
         <div class="camera-box">
-            <h3>📷 Live Camera Feed</h3>
-            <video id="camera" autoplay></video>
+            <h3>Real-Time CCTV Monitoring (Future Scope)</h3>
+            <div class="camera-placeholder" aria-label="Real-time CCTV monitoring future scope">
+                <span>CCTV module disabled for upload-only demo</span>
+            </div>
         </div>
 
         <div class="detection-box">
@@ -161,6 +170,7 @@
     <div class="yolo-output">
         <h3>🧠 YOLO Detection Output</h3>
         <img src="output/result.jpg" id="yolo-image" width="400">
+        <video id="processedVideo" controls style="display:none; max-width:90%; margin:15px auto 0;"></video>
     </div>
 
 </div>
@@ -238,11 +248,6 @@
     </div>
 
     <div class="setting-item">
-        <label>📷 Camera Feed</label>
-        <input type="checkbox" id="cameraToggle" checked>
-    </div>
-
-    <div class="setting-item">
         <label>🧠 AI Sensitivity</label>
         <input type="range" min="1" max="10" value="5" id="aiLevel">
      </div>
@@ -251,9 +256,10 @@
 
 <!-- 🔥 SCRIPT -->
 <script>
+let backendUploadActive = false;
+
 document.addEventListener("DOMContentLoaded", () => {
 
-    // 🔁 PAGE SWITCH
     window.showPage = function(pageId) {
         const pages = document.querySelectorAll(".page");
 
@@ -261,91 +267,18 @@ document.addEventListener("DOMContentLoaded", () => {
             page.classList.remove("active");
         });
 
-        document.getElementById(pageId).classList.add("active");
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add("active");
+        }
     };
 
-    const video = document.getElementById("camera");
     const detectionList = document.getElementById("detectionList");
-    const uploadInput = document.getElementById("videoUpload");
-    const uploadedVideo = document.getElementById("uploadedVideo");
-
-    // 🎥 Webcam
-    if (video) {
-        navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            video.srcObject = stream;
-        });
-    }
-
-    // 🔁 YOLO refresh
-    setInterval(() => {
-        const img = document.getElementById("yolo-image");
-        if (img) {
-            img.src = "output/result.jpg?t=" + new Date().getTime();
-        }
-    }, 1000);
-
-    // 🔢 Counter
-  function animateCount(id, target) {
-    let count = 0;
-    const element = document.getElementById(id);
-
-    const interval = setInterval(() => {
-        count += Math.ceil(target / 50); // faster + smooth
-        if (count >= target) count = target;
-
-        element.innerText = count;
-
-        if (count === target) clearInterval(interval);
-    }, 30);
-}
-    // 🔥 Fake logs
-    const logs = [
-        "🚨 Helmet violation detected",
-        "🚗 Overspeed vehicle detected",
-        "🚦 Signal jump detected",
-        "📸 License plate captured",
-        "⚠️ Triple riding detected"
-    ];
-
     if (detectionList) {
-        setInterval(() => {
-            const li = document.createElement("li");
-            li.innerText = logs[Math.floor(Math.random() * logs.length)];
-            detectionList.prepend(li);
-
-            if (detectionList.children.length > 5) {
-                detectionList.removeChild(detectionList.lastChild);
-            }
-        }, 2000);
+        detectionList.innerHTML = '<li id="initialLog">Upload a video to start detection.</li>';
     }
 
-    // 📤 Upload simulation
-    if (uploadInput) {
-        uploadInput.addEventListener("change", function () {
-            const file = this.files[0];
-
-            if (file) {
-                const url = URL.createObjectURL(file);
-                uploadedVideo.src = url;
-                uploadedVideo.style.display = "block";
-
-                if (detectionList) {
-                    detectionList.innerHTML = "<li>⏳ Processing video...</li>";
-
-                    setTimeout(() => {
-                        detectionList.innerHTML = `
-                            <li>🚨 Helmet violation detected</li>
-                            <li>🚦 Signal jump detected</li>
-                            <li>⚡ Over-speed detected</li>
-                        `;
-                    }, 3000);
-                }
-            }
-        });
-    }
-
-})
+});
 function toggleSidebar() {
     const sidebar = document.getElementById("sidebar");
     const container = document.querySelector(".container");
@@ -359,6 +292,7 @@ function toggleSidebar() {
     const isOpen = !sidebar.classList.contains("closed");
 
     document.body.classList.toggle("sidebar-open", isOpen);
+    menuBtn.classList.toggle("is-open", isOpen);
 
     // 🔥 CHANGE ICON
     menuBtn.textContent = isOpen ? "✖" : "☰";
@@ -370,17 +304,19 @@ function setActive(element) {
 
     element.classList.add("active");
 }
-document.getElementById("videoUpload").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    const video = document.getElementById("uploadedVideo");
-
-    if (file) {
-        video.src = URL.createObjectURL(file);
-        video.style.display = "block";
-    }
-});
 function addLog(message, type = "normal") {
+    if (
+        backendUploadActive &&
+        message !== "Video processed by backend" &&
+        message !== "Upload failed"
+    ) {
+        return;
+    }
+
     const logList = document.getElementById("detectionList");
+    if (!logList) {
+        return;
+    }
 
     const li = document.createElement("li");
 
@@ -394,109 +330,333 @@ function addLog(message, type = "normal") {
     logList.appendChild(li);
     logList.scrollTop = logList.scrollHeight;
 }
-    addLog("🟢 Test Normal", "normal");
-    addLog("🟡 Test Warning", "warning");
-    addLog("🔴 Test Violation", "violation");
-setTimeout(() => {
-    addLog("🚗 Vehicle detected", "normal");
-}, 2000);
-
-setTimeout(() => {
-    addLog("📸 License plate captured", "normal");
-}, 3500);
-
-setTimeout(() => {
-    addLog("⚠️ Triple riding detected", "warning");
-}, 5000);
-
-setTimeout(() => {
-    addLog("🚦 Signal jump detected", "violation");
-}, 6500);
-
-setTimeout(() => {
-    addLog("🛑 Helmet violation detected", "violation");
-}, 8000);
 </script>
 <script>
-// 🌙 DARK MODE
+// Dark mode
 const darkModeToggle = document.getElementById("darkMode");
 
-darkModeToggle.addEventListener("change", () => {
-    document.body.classList.toggle("light-mode");
-});
+if (darkModeToggle) {
+    darkModeToggle.addEventListener("change", () => {
+        document.body.classList.toggle("light-mode");
+    });
+}
 
-
-// 🔔 NOTIFICATIONS
+// Notifications
 const notificationsToggle = document.getElementById("notifications");
 
-notificationsToggle.addEventListener("change", () => {
-    if (notificationsToggle.checked) {
-        alert("Notifications Enabled 🔔");
-    } else {
-        alert("Notifications Disabled ❌");
-    }
-});
-
-
-// 📷 CAMERA TOGGLE
-const cameraToggle = document.getElementById("cameraToggle");
-const cameraFeed = document.getElementById("camera");
-
-cameraToggle.addEventListener("change", () => {
-    if (cameraToggle.checked) {
-        cameraFeed.style.display = "block";
-    } else {
-        cameraFeed.style.display = "none";
-    }
-});
-
+if (notificationsToggle) {
+    notificationsToggle.addEventListener("change", () => {
+        if (notificationsToggle.checked) {
+            alert("Notifications Enabled");
+        } else {
+            alert("Notifications Disabled");
+        }
+    });
+}
 
 // 🧠 AI SENSITIVITY SLIDER
 const aiLevel = document.getElementById("aiLevel");
 
-aiLevel.addEventListener("input", () => {
-    console.log("AI Sensitivity:", aiLevel.value);
-});
+if (aiLevel) {
+    aiLevel.addEventListener("input", () => {
+        console.log("AI Sensitivity:", aiLevel.value);
+    });
+}
 </script>
 <script>
-const videoUpload = document.getElementById("videoUpload");
-const videoPlayer = document.getElementById("uploadedVideo");
+(function initUploadHandler() {
+    const videoUpload = document.getElementById("videoUpload");
+    const videoPlayer = document.getElementById("uploadedVideo");
+    const uploadDetectionList = document.getElementById("detectionList");
+    const uploadViolationCount = document.getElementById("violationCount");
+    const uploadOutputImage = document.getElementById("yolo-image");
+    const processedVideo = document.getElementById("processedVideo");
+    let previewUrl = null;
+    let uploadInProgress = false;
+    let progressTimer = null;
+    let progressIndex = 0;
 
-videoUpload.addEventListener("change", async function () {
-    const file = this.files[0];
+    const progressMessages = [
+        "Reading uploaded video...",
+        "Sampling frames for YOLO detection...",
+        "Checking traffic-light and vehicle events...",
+        "Counting detected violations...",
+        "Preparing processed output..."
+    ];
 
-    if (!file) return;
+    if (!videoUpload) {
+        console.warn("[Upload] videoUpload input not found");
+        return;
+    }
 
-    // show preview
-    const url = URL.createObjectURL(file);
-    videoPlayer.src = url;
-    videoPlayer.style.display = "block";
+    function keepUploadSectionOpen() {
+        if (typeof window.showPage === "function") {
+            window.showPage("dashboardPage");
+        }
+    }
 
-    // send to backend
-    const formData = new FormData();
-    formData.append("file", file);
+    function clearDetectionLog() {
+        if (!uploadDetectionList) {
+            console.error("[Upload UI] Detection log element not found");
+            return false;
+        }
+        uploadDetectionList.innerHTML = "";
+        return true;
+    }
 
-    try {
-        const response = await fetch("http://127.0.0.1:5000/upload", {
-            method: "POST",
-            body: formData
+    function appendDetectionLog(message, type = "normal") {
+        if (!uploadDetectionList) {
+            console.error("[Upload UI] Detection log element not found");
+            return false;
+        }
+
+        const li = document.createElement("li");
+        li.className = "log-item " + type;
+        li.textContent = message;
+        uploadDetectionList.appendChild(li);
+        uploadDetectionList.scrollTop = uploadDetectionList.scrollHeight;
+        return true;
+    }
+
+    function setDetectionLog(message, type = "normal") {
+        if (!clearDetectionLog()) {
+            return false;
+        }
+        return appendDetectionLog(message, type);
+    }
+
+    function startProgressLog() {
+        stopProgressLog();
+        progressIndex = 0;
+        appendDetectionLog(progressMessages[progressIndex]);
+
+        progressTimer = setInterval(() => {
+            progressIndex = Math.min(progressIndex + 1, progressMessages.length - 1);
+            appendDetectionLog(progressMessages[progressIndex]);
+
+            if (progressIndex === progressMessages.length - 1) {
+                stopProgressLog();
+            }
+        }, 1200);
+    }
+
+    function stopProgressLog() {
+        if (progressTimer) {
+            clearInterval(progressTimer);
+            progressTimer = null;
+        }
+    }
+
+    function extractViolations(data) {
+        const source =
+            data.violations ||
+            data.results ||
+            data.detections ||
+            data.violation ||
+            [];
+
+        const violations = Array.isArray(source) ? source : [source];
+        const normalized = violations
+            .filter(Boolean)
+            .map((violation) => ({
+                type: violation.type || violation.violation || violation.name || "Traffic violation",
+                fine: violation.fine || violation.amount || violation.penalty || 0,
+                frame: violation.frame,
+                status: violation.status || data.status || "processed"
+            }));
+
+        console.log("[Upload] Violations extracted:", normalized);
+        return normalized;
+    }
+
+    function getOutputPath(data) {
+        return data.output || data.output_video || data.processed_video || data.outputPath || "";
+    }
+
+    function getPlayableOutputUrl(outputPath) {
+        if (!outputPath) {
+            return "";
+        }
+
+        if (/^(https?:|blob:|data:|file:)/i.test(outputPath)) {
+            return outputPath;
+        }
+
+        if (/^[a-zA-Z]:[\\/]/.test(outputPath)) {
+            return "file:///" + outputPath.replace(/\\/g, "/");
+        }
+
+        return outputPath.replace(/\\/g, "/");
+    }
+
+    function keepPreviewPlaying() {
+        if (!videoPlayer || !videoPlayer.src) {
+            return;
+        }
+
+        videoPlayer.style.display = "block";
+        videoPlayer.muted = true;
+        videoPlayer.playsInline = true;
+
+        const playAttempt = videoPlayer.play();
+        if (playAttempt && typeof playAttempt.catch === "function") {
+            playAttempt.catch(() => {
+                videoPlayer.controls = true;
+            });
+        }
+    }
+
+    function renderProcessingResult(data) {
+        const violations = extractViolations(data);
+        const outputPath = getOutputPath(data);
+        const playableOutputUrl = getPlayableOutputUrl(outputPath);
+
+        if (uploadViolationCount) {
+            uploadViolationCount.innerText = violations.length;
+            console.log("[Upload UI] Violation count updated:", violations.length);
+        } else {
+            console.error("[Upload UI] Violation count element not found");
+        }
+
+        setDetectionLog(data.message || "Processing complete. Backend response received.");
+
+        if (violations.length === 0) {
+            appendDetectionLog("Upload complete. No violations detected in demo frames.");
+        } else {
+            violations.forEach((violation) => {
+                const frame = violation.frame !== undefined ? ` | Frame: ${violation.frame}` : "";
+                appendDetectionLog(`${violation.type} | Fine: Rs.${violation.fine}${frame}`, "violation");
+            });
+        }
+
+        appendDetectionLog(`Summary: ${violations.length} violation(s) detected.`, violations.length ? "warning" : "normal");
+
+        if (uploadOutputImage && outputPath) {
+            uploadOutputImage.alt = "Processed output: " + outputPath;
+            uploadOutputImage.dataset.output = outputPath;
+            console.log("[Upload UI] Output metadata updated:", outputPath);
+        } else if (!uploadOutputImage) {
+            console.error("[Upload UI] YOLO output image element not found");
+        } else {
+            console.warn("[Upload UI] Backend response did not include output/output_video");
+        }
+
+        if (processedVideo && playableOutputUrl) {
+            processedVideo.src = playableOutputUrl;
+            processedVideo.style.display = "block";
+            processedVideo.load();
+            appendDetectionLog("Processed output video is ready.");
+        } else if (outputPath) {
+            appendDetectionLog("Processed output generated: " + outputPath);
+        }
+
+        keepPreviewPlaying();
+        keepUploadSectionOpen();
+
+        return {
+            violations,
+            outputPath,
+            previewVisible: Boolean(videoPlayer && videoPlayer.src)
+        };
+    }
+
+    videoUpload.addEventListener("change", async function (event) {
+        event.preventDefault();
+        console.log("[Upload] Change event fired");
+
+        if (uploadInProgress) {
+            console.warn("[Upload] Ignoring duplicate change while upload is in progress");
+            return;
+        }
+
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+            console.warn("[Upload] No file selected");
+            return;
+        }
+
+        backendUploadActive = true;
+        uploadInProgress = true;
+        keepUploadSectionOpen();
+
+        console.log("[Upload] Selected file:", {
+            name: file.name,
+            type: file.type,
+            size: file.size
         });
 
-        const data = await response.json();
+        if (videoPlayer) {
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+            }
+            previewUrl = URL.createObjectURL(file);
+            videoPlayer.src = previewUrl;
+            videoPlayer.style.display = "block";
+            videoPlayer.load();
+            keepPreviewPlaying();
+        }
 
-        console.log("Backend response:", data);
+        if (processedVideo) {
+            processedVideo.removeAttribute("src");
+            processedVideo.style.display = "none";
+            processedVideo.load();
+        }
 
-        // update YOLO output image
-        document.getElementById("yolo-image").src = data.output;
+        const formData = new FormData();
+        formData.append("file", file, file.name);
+        formData.append("username", "demo_user");
 
-        // add log
-        addLog("📤 Video processed", "normal");
+        setDetectionLog("Uploading video to Flask backend...");
+        startProgressLog();
 
-    } catch (error) {
-        console.error(error);
-        addLog("❌ Upload failed", "violation");
-    }
-});
+        try {
+            console.log("[Upload] Sending POST http://localhost:5000/upload");
+            const response = await fetch("http://localhost:5000/upload", {
+                method: "POST",
+                body: formData
+            });
+
+            console.log("[Upload] Response received:", {
+                ok: response.ok,
+                status: response.status,
+                statusText: response.statusText,
+                contentType: response.headers.get("content-type")
+            });
+
+            const rawText = await response.text();
+            console.log("[Upload] Raw response text:", rawText);
+            let data = {};
+
+            try {
+                data = rawText ? JSON.parse(rawText) : {};
+                console.log("[Upload] Parsed JSON:", data);
+            } catch (parseError) {
+                console.error("[Upload] Non-JSON Flask response:", rawText);
+                throw new Error("Flask returned a non-JSON response.");
+            }
+
+            if (!response.ok || data.status === "error") {
+                throw new Error(data.message || "Upload failed with status " + response.status);
+            }
+
+            const renderResult = renderProcessingResult(data);
+            console.log("[Upload] Render result:", renderResult);
+
+            addLog("Video processed by backend", "normal");
+        } catch (error) {
+            console.error("[Upload] Failed:", error);
+            setDetectionLog("Upload failed. Check Flask console logs and confirm backend is running on localhost:5000.");
+            addLog("Upload failed", "violation");
+        } finally {
+            stopProgressLog();
+            uploadInProgress = false;
+            backendUploadActive = false;
+            keepPreviewPlaying();
+            keepUploadSectionOpen();
+            console.log("[Upload] Flow finished");
+        }
+    });
+})();
 </script>
 <script src="script.js"></script>
 </body>
