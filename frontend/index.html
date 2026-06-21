@@ -163,6 +163,14 @@
             <ul id="detectionList">
                 <li id="initialLog">Waiting for input...</li>
             </ul>
+            <div class="post-detection-actions">
+                <button id="uploadAnotherBtn" class="primary-btn" type="button" hidden>
+                    Upload Another Video
+                </button>
+                <button id="clearResultsBtn" class="secondary-btn" type="button" hidden>
+                    Clear Results
+                </button>
+            </div>
         </div>
 
     </div>
@@ -257,6 +265,18 @@
 <!-- 🔥 SCRIPT -->
 <script>
 let backendUploadActive = false;
+
+window.addEventListener("beforeunload", () => {
+    console.log("[Upload Debug] beforeunload fired");
+});
+
+window.addEventListener("unload", () => {
+    console.log("[Upload Debug] unload fired");
+});
+
+window.addEventListener("pagehide", () => {
+    console.log("[Upload Debug] pagehide fired");
+});
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -367,10 +387,13 @@ if (aiLevel) {
 (function initUploadHandler() {
     const videoUpload = document.getElementById("videoUpload");
     const videoPlayer = document.getElementById("uploadedVideo");
-    const uploadDetectionList = document.getElementById("detectionList");
     const uploadViolationCount = document.getElementById("violationCount");
     const uploadOutputImage = document.getElementById("yolo-image");
     const processedVideo = document.getElementById("processedVideo");
+    const uploadAnotherBtn = document.getElementById("uploadAnotherBtn");
+    const clearResultsBtn = document.getElementById("clearResultsBtn");
+    const defaultOutputImageSrc = uploadOutputImage ? uploadOutputImage.getAttribute("src") : "";
+    const defaultOutputImageAlt = uploadOutputImage ? uploadOutputImage.getAttribute("alt") || "" : "";
     let previewUrl = null;
     let uploadInProgress = false;
     let progressTimer = null;
@@ -389,23 +412,43 @@ if (aiLevel) {
         return;
     }
 
+    console.log("[Upload Debug] Upload handler initialized:", {
+        videoUploadFound: Boolean(videoUpload),
+        detectionListFound: Boolean(document.getElementById("detectionList"))
+    });
+
+    videoUpload.addEventListener("click", () => {
+        console.log("[Upload Debug] Upload button click");
+    });
+
     function keepUploadSectionOpen() {
         if (typeof window.showPage === "function") {
             window.showPage("dashboardPage");
         }
     }
 
+    function getDetectionLogElement() {
+        const detectionList = document.getElementById("detectionList");
+        console.log("[Upload Debug] Detection Log DOM lookup:", {
+            exists: Boolean(detectionList),
+            activePage: document.querySelector(".page.active")?.id || "none"
+        });
+        return detectionList;
+    }
+
     function clearDetectionLog() {
-        if (!uploadDetectionList) {
+        const detectionList = getDetectionLogElement();
+        if (!detectionList) {
             console.error("[Upload UI] Detection log element not found");
             return false;
         }
-        uploadDetectionList.innerHTML = "";
+        detectionList.innerHTML = "";
         return true;
     }
 
     function appendDetectionLog(message, type = "normal") {
-        if (!uploadDetectionList) {
+        const detectionList = getDetectionLogElement();
+        if (!detectionList) {
             console.error("[Upload UI] Detection log element not found");
             return false;
         }
@@ -413,8 +456,9 @@ if (aiLevel) {
         const li = document.createElement("li");
         li.className = "log-item " + type;
         li.textContent = message;
-        uploadDetectionList.appendChild(li);
-        uploadDetectionList.scrollTop = uploadDetectionList.scrollHeight;
+        detectionList.appendChild(li);
+        detectionList.scrollTop = detectionList.scrollHeight;
+        console.log("[Upload Debug] Detection Log updated:", message);
         return true;
     }
 
@@ -423,6 +467,71 @@ if (aiLevel) {
             return false;
         }
         return appendDetectionLog(message, type);
+    }
+
+    function resetDetectionLog() {
+        const detectionList = getDetectionLogElement();
+        if (!detectionList) {
+            console.error("[Upload UI] Detection log element not found");
+            return false;
+        }
+
+        detectionList.innerHTML = '<li id="initialLog">Waiting for input...</li>';
+        return true;
+    }
+
+    function setPostDetectionActionsVisible(isVisible) {
+        if (uploadAnotherBtn) {
+            uploadAnotherBtn.hidden = !isVisible;
+        }
+        if (clearResultsBtn) {
+            clearResultsBtn.hidden = !isVisible;
+        }
+    }
+
+    function resetDashboardResults({ clearFileSelection = false, clearPreview = false } = {}) {
+        stopProgressLog();
+
+        if (clearFileSelection) {
+            videoUpload.value = "";
+        }
+
+        if (clearPreview && videoPlayer) {
+            videoPlayer.pause();
+            videoPlayer.removeAttribute("src");
+            videoPlayer.style.display = "none";
+            videoPlayer.load();
+        }
+
+        if (previewUrl && clearPreview) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+        }
+
+        if (processedVideo) {
+            processedVideo.pause();
+            processedVideo.removeAttribute("src");
+            processedVideo.style.display = "none";
+            processedVideo.load();
+        }
+
+        if (uploadOutputImage) {
+            uploadOutputImage.setAttribute("src", defaultOutputImageSrc);
+            if (defaultOutputImageAlt) {
+                uploadOutputImage.setAttribute("alt", defaultOutputImageAlt);
+            } else {
+                uploadOutputImage.removeAttribute("alt");
+            }
+            delete uploadOutputImage.dataset.output;
+        }
+
+        if (uploadViolationCount) {
+            uploadViolationCount.innerText = "0";
+        }
+
+        resetDetectionLog();
+        setPostDetectionActionsVisible(false);
+        keepUploadSectionOpen();
     }
 
     function startProgressLog() {
@@ -469,6 +578,17 @@ if (aiLevel) {
         return normalized;
     }
 
+    function getViolationCount(data, violations) {
+        const count =
+            data.violation_count ??
+            data.violationCount ??
+            data.count ??
+            data.total_violations;
+
+        const numericCount = Number(count);
+        return Number.isFinite(numericCount) ? numericCount : violations.length;
+    }
+
     function getOutputPath(data) {
         return data.output || data.output_video || data.processed_video || data.outputPath || "";
     }
@@ -508,28 +628,28 @@ if (aiLevel) {
 
     function renderProcessingResult(data) {
         const violations = extractViolations(data);
+        const violationCount = getViolationCount(data, violations);
         const outputPath = getOutputPath(data);
         const playableOutputUrl = getPlayableOutputUrl(outputPath);
 
         if (uploadViolationCount) {
-            uploadViolationCount.innerText = violations.length;
-            console.log("[Upload UI] Violation count updated:", violations.length);
+            uploadViolationCount.innerText = violationCount;
+            console.log("[Upload UI] Violation count updated:", violationCount);
         } else {
             console.error("[Upload UI] Violation count element not found");
         }
 
-        setDetectionLog(data.message || "Processing complete. Backend response received.");
+        setDetectionLog("Upload completed successfully.");
+        appendDetectionLog(`Violations detected: ${violationCount}`, violationCount ? "warning" : "normal");
 
         if (violations.length === 0) {
-            appendDetectionLog("Upload complete. No violations detected in demo frames.");
+            console.log("[Upload UI] Backend returned no violation detail rows.");
         } else {
             violations.forEach((violation) => {
                 const frame = violation.frame !== undefined ? ` | Frame: ${violation.frame}` : "";
                 appendDetectionLog(`${violation.type} | Fine: Rs.${violation.fine}${frame}`, "violation");
             });
         }
-
-        appendDetectionLog(`Summary: ${violations.length} violation(s) detected.`, violations.length ? "warning" : "normal");
 
         if (uploadOutputImage && outputPath) {
             uploadOutputImage.alt = "Processed output: " + outputPath;
@@ -545,19 +665,32 @@ if (aiLevel) {
             processedVideo.src = playableOutputUrl;
             processedVideo.style.display = "block";
             processedVideo.load();
-            appendDetectionLog("Processed output video is ready.");
         } else if (outputPath) {
-            appendDetectionLog("Processed output generated: " + outputPath);
+            console.log("[Upload UI] Processed output generated:", outputPath);
         }
 
         keepPreviewPlaying();
         keepUploadSectionOpen();
+        setPostDetectionActionsVisible(true);
 
         return {
             violations,
+            violationCount,
             outputPath,
             previewVisible: Boolean(videoPlayer && videoPlayer.src)
         };
+    }
+
+    if (uploadAnotherBtn) {
+        uploadAnotherBtn.addEventListener("click", () => {
+            resetDashboardResults({ clearFileSelection: true, clearPreview: true });
+        });
+    }
+
+    if (clearResultsBtn) {
+        clearResultsBtn.addEventListener("click", () => {
+            resetDashboardResults();
+        });
     }
 
     videoUpload.addEventListener("change", async function (event) {
@@ -578,12 +711,14 @@ if (aiLevel) {
         backendUploadActive = true;
         uploadInProgress = true;
         keepUploadSectionOpen();
+        setPostDetectionActionsVisible(false);
 
         console.log("[Upload] Selected file:", {
             name: file.name,
             type: file.type,
             size: file.size
         });
+        console.log("[Upload Debug] File selected:", file.name);
 
         if (videoPlayer) {
             if (previewUrl) {
@@ -610,11 +745,13 @@ if (aiLevel) {
         startProgressLog();
 
         try {
-            console.log("[Upload] Sending POST http://localhost:5000/upload");
-            const response = await fetch("http://localhost:5000/upload", {
+            console.log("[Upload Debug] POST request sent: http://127.0.0.1:5000/upload");
+            console.log("BEFORE FETCH");
+            const response = await fetch("http://127.0.0.1:5000/upload", {
                 method: "POST",
                 body: formData
             });
+            console.log("AFTER FETCH");
 
             console.log("[Upload] Response received:", {
                 ok: response.ok,
@@ -622,29 +759,36 @@ if (aiLevel) {
                 statusText: response.statusText,
                 contentType: response.headers.get("content-type")
             });
+            console.log("[Upload Debug] Response received:", response.status);
 
-            const rawText = await response.text();
-            console.log("[Upload] Raw response text:", rawText);
             let data = {};
 
             try {
-                data = rawText ? JSON.parse(rawText) : {};
+                console.log("BEFORE JSON");
+                data = await response.json();
+                console.log("AFTER JSON", data);
+                console.log("RAW DATA", data);
+                console.log("TYPE OF VIOLATIONS", typeof data.violations);
+                console.log("VIOLATIONS VALUE", data.violations);
                 console.log("[Upload] Parsed JSON:", data);
+                console.log("[Upload Debug] JSON parsed:", data);
+
+                if (!response.ok || data.status === "error") {
+                    throw new Error(data.message || "Upload failed with status " + response.status);
+                }
+
+                console.log("ENTERING SUCCESS RENDER");
+                stopProgressLog();
+                const renderResult = renderProcessingResult(data);
+                console.log("[Upload] Render result:", renderResult);
             } catch (parseError) {
-                console.error("[Upload] Non-JSON Flask response:", rawText);
-                throw new Error("Flask returned a non-JSON response.");
+                console.error("[Upload] Parse/render section failed:", parseError);
+                console.error("[Upload] Parse/render stack:", parseError && parseError.stack ? parseError.stack : parseError);
+                throw parseError;
             }
-
-            if (!response.ok || data.status === "error") {
-                throw new Error(data.message || "Upload failed with status " + response.status);
-            }
-
-            const renderResult = renderProcessingResult(data);
-            console.log("[Upload] Render result:", renderResult);
-
-            addLog("Video processed by backend", "normal");
         } catch (error) {
             console.error("[Upload] Failed:", error);
+            console.error("[Upload] Failed stack:", error && error.stack ? error.stack : error);
             setDetectionLog("Upload failed. Check Flask console logs and confirm backend is running on localhost:5000.");
             addLog("Upload failed", "violation");
         } finally {

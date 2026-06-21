@@ -629,6 +629,25 @@ body::after {
     color: #22d3ee;
     transform: translateX(5px);
 }
+
+.post-detection-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.post-detection-actions .primary-btn,
+.post-detection-actions .secondary-btn {
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+}
+
+.post-detection-actions button[hidden] {
+    display: none;
+}
+
 .camera-box video,
 .camera-box img,
 .camera-placeholder {
